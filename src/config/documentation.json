@@ -1,0 +1,323 @@
+{
+    "openapi": "3.1.0",
+    "info":{
+        "title": "Bibliothèque API",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:3030/",
+            "description": "Serveur de développement"
+        },
+        {
+            "url": "http://api.profs.ca",
+            "description": "Serveur en ligne"
+        }
+    ],
+    "paths": {
+        "/api": {
+            "get": {
+                "summary": "Message de bienvenue",
+                "tags": ["Accueil"],
+                "responses": {
+                    "200": {
+                        "description": "Retourne un message de bienvenue",
+                        "content": {
+                            "text/html": {
+                                "example": "<h1>Mon deuxième serveur web sur express !</h1>"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/livre": {
+            "post": {
+                "summary": "Ajouter un livre",
+                "tags": ["Livre"],
+                "responses": {
+                    "200": {
+                        "description": "Livre ajouté avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Le livre à été ajouté avec succès!"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400" : {
+                        "description": "Livre pas ajouté",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erreur, le livre n'est pas au bon format."
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    },
+                    "500" : {
+                        "description": "Pokemon non rencontré",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Echec lors de l'ajout du livre."
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/livre/{id}": {
+            "get": {
+                "summary": "Récupérer un livre",
+                "tags": ["Livre"],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "id",
+                        "description": "Id du livre à trouver",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "example" : "1"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Livre retrouvé avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "livre": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "nom": {
+                                                        "titre": "string",
+                                                        "example": "Bible"
+                                                    },
+                                                    "auteur": {
+                                                        "type": "string",
+                                                        "example": "Jésus"
+                                                    },
+                                                    "ISBN": {
+                                                        "type": "string",
+                                                        "example": "978-2-1234-5680-3"
+                                                    },
+                                                    "disponible": {
+                                                        "type": "bool",
+                                                        "example": false
+                                                    },
+                                                    "description": {
+                                                        "type": "string",
+                                                        "example": "C'est le fucking livre de Dieu!"
+                                                    },
+                                                    "prêts": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "emprunteur": {
+                                                                    "type": "string",
+                                                                    "example": "Félix Gagné"
+                                                                },
+                                                                "date_ajout": {
+                                                                    "type": "string",
+                                                                    "example": "2026-04-16"
+                                                                },
+                                                                "date_retour": {
+                                                                    "type": "string",
+                                                                    "example": "3000-01-01"
+                                                                },
+                                                                "en_cours": {
+                                                                    "type": "bool",
+                                                                    "example": true
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400" : {
+                        "description": "Livre non retrouvé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erreur, le livre n'existe pas"
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    },
+                    "500" : {
+                        "description": "Livre non retrouvé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Echec lors de la récupération du livre"
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "summary": "Récupérer un livre",
+                "tags": ["Livre"],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "id",
+                        "description": "Id du livre à trouver",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "example" : "1"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Livre retrouvé avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "livre": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "nom": {
+                                                        "titre": "string",
+                                                        "example": "Bible"
+                                                    },
+                                                    "auteur": {
+                                                        "type": "string",
+                                                        "example": "Jésus"
+                                                    },
+                                                    "ISBN": {
+                                                        "type": "string",
+                                                        "example": "978-2-1234-5680-3"
+                                                    },
+                                                    "disponible": {
+                                                        "type": "bool",
+                                                        "example": false
+                                                    },
+                                                    "description": {
+                                                        "type": "string",
+                                                        "example": "C'est le fucking livre de Dieu!"
+                                                    },
+                                                    "prêts": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "emprunteur": {
+                                                                    "type": "string",
+                                                                    "example": "Félix Gagné"
+                                                                },
+                                                                "date_ajout": {
+                                                                    "type": "string",
+                                                                    "example": "2026-04-16"
+                                                                },
+                                                                "date_retour": {
+                                                                    "type": "string",
+                                                                    "example": "3000-01-01"
+                                                                },
+                                                                "en_cours": {
+                                                                    "type": "bool",
+                                                                    "example": true
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400" : {
+                        "description": "Livre non retrouvé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erreur, le livre n'existe pas"
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    },
+                    "500" : {
+                        "description": "Livre non retrouvé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Echec lors de la récupération du livre"
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
