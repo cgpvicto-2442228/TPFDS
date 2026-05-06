@@ -1,80 +1,29 @@
 import pool from '../config/db_pg.js';
 
-const getListeLivre = async () => {
-    const requete = `SELECT id, bibliotheque_id, titre, auteur, isbn, description, date_ajout, disponible FROM livres`;
-
-    try {
-        const resultat = await pool.query(requete);
-        return resultat.rows || null;
-    } catch (erreur) {
-        console.log(`Erreur PostgreSQL : ${erreur.code} : ${erreur.message}`);
-        throw erreur;
-    }
+const createBibliotheque = async (nom, courriel, passwordHash, cleApi) => {
+    const requete = `INSERT INTO bibliotheque (nom, courriel, cle_api, password) VALUES ($1, $2, $3, $4) RETURNING id`;
+    const params = [nom, courriel, cleApi, passwordHash];
+    const resultat = await pool.query(requete, params);
+    return resultat.rows[0].id;
 };
 
-const getLivre = async (id) => {
-    const requete = `SELECT id, bibliotheque_id, titre, auteur, isbn, description, date_ajout, disponible FROM livres WHERE id = $1 LIMIT 1`;
-    const params = [id];
-
-    try {
-        const resultat = await pool.query(requete, params);
-        return resultat.rows[0] || null;
-    } catch (erreur) {
-        console.log(`Erreur PostgreSQL : ${erreur.code} : ${erreur.message}`);
-        throw erreur;
-    }
+const findParCourriel = async (courriel) => {
+    const lignes = await pool.query("SELECT * FROM bibliotheque WHERE courriel = $1", [courriel]);
+    return lignes.rows[0];
 };
 
-const createLivre = async (requeteNouveauLivre) => {
-    const {titre, auteur, isbn, description, date_ajout, disponible} = requeteNouveauLivre;
-    
-    const requete = `INSERT INTO livres (titre, auteur, isbn, description, date_ajout, disponible) 
-                 VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`;
-    const params = [titre, auteur, isbn, description || null, date_ajout || null, disponible];
-
-    try {
-        const resultat = await pool.query(requete, params);
-        return resultat.rows[0].id;
-    } catch (erreur) {
-        console.log(`Erreur PostgreSQL : ${erreur.code} : ${erreur.message}`);
-        throw erreur;
-    }
+const findIdParCleApi = async (cleApi) => {
+    const lignes = await pool.query("SELECT id FROM bibliotheque WHERE cle_api = $1", [cleApi]); 
+    return lignes.rows[0].id;
 };
 
-const updatePokemon = async (id, requeteModifiePokemon) => {
-    const {nom, type_primaire, type_secondaire, pv, attaque, defense} = requeteModifiePokemon;
-    
-    const requete = `UPDATE pokemon 
-                 SET nom = $1, type_primaire = $2, type_secondaire = $3, pv = $4, attaque = $5, defense = $6 
-                 WHERE id = $7`;
-    const params = [nom, type_primaire, type_secondaire || null, pv, attaque, defense, id];
-
-    try {
-        const resultat = await pool.query(requete, params);
-        // Retourne le nombre de ligne affectées.
-        return resultat.rowCount;
-    } catch (erreur) {
-        console.log(`Erreur PostgreSQL : ${erreur.code} : ${erreur.message}`);
-        throw erreur;
-    }
+const updateCleApi = async (bibliothequeId, nouvelleCleApi) => {
+    await pool.query("UPDATE bibliotheque SET cle_api = $1 WHERE id = $2", [nouvelleCleApi, bibliothequeId]);
 };
 
-const deletePokemon = async (id) => {    
-    const requete = `DELETE FROM pokemon WHERE id = $1`;
-    const params = [id];
-
-    try {
-        const resultat = await pool.query(requete, params);
-        // Retourne le nombre de ligne affectées.
-        return resultat.rowCount;
-    } catch (erreur) {
-        console.log(`Erreur PostgreSQL : ${erreur.code} : ${erreur.message}`);
-        throw erreur;
-    }
-};
-
-export default {
-    getListeLivre,
-    getLivre,
-    createLivre
+export default { 
+    createBibliotheque, 
+    findParCourriel, 
+    findIdParCleApi, 
+    updateCleApi 
 };

@@ -1,0 +1,227 @@
+import livresModel from "../models/livres.model.js";
+import bibliothequesModel from '../models/bibliotheques.model.js';
+
+const listeLivre = async (req, res) => {
+    try {
+        const livre = await livresModel.getListeLivre();
+        res.send(livre);
+
+    } catch (erreur) {
+        console.log('Erreur : ', erreur);
+        res.status(500)
+        res.send({
+            message: "Echec lors de la récupération de la liste des livres"
+        });
+    };
+};
+
+const trouverLivre = async (req, res) => {
+    if(!req.params.id || parseInt(req.params.id) <= 0){
+        res.status(400);
+        res.send({
+            message: "L'id du livre est obligatoire et doit être supérieur à 0"
+        });
+        return;
+    }
+
+    try {
+        const livre = await livresModel.getLivre(req.params.id);
+        res.send(livre);
+    } catch (erreur) {
+        console.log('Erreur : ', erreur);
+        res.status(500)
+        res.send({
+            message: "Erreur lors de la récupération du livre avec l'id " + req.params.id
+        });
+    };
+};
+
+const ajouterLivre = async (req, res) => {
+    const cleApi = req.headers.authorization.split(' ')[1];
+    const isbnRegex = /^(978|979)-\d{1}-\d{4}-\d{4}-\d{1}$/;
+    const dateRegex = /^\d{4}-[0-1]\d-[0-4]\d$/;
+    const champsObligatoires = ["titre", "auteur"];
+    let erreur = ``;
+
+    champsObligatoires.forEach(champ => {
+        if (req.body[champ] === undefined || req.body[champ] === "") {
+            erreur += `Le champ ${champ} est vide.\n`
+        }
+    });
+
+    if (req.body.disponible !== true && req.body.disponible !== false) {
+        erreur += `Le champ disponible doit être "true" ou "false".\n`
+    }
+
+    if (!req.body.isbn.match(isbnRegex)) {
+        erreur += `Le champ isbn doit être au format 978|979-X-XXXX-XXXX-X ou X est un chiffre.\n`
+    }
+
+    if (req.body.date_ajout !== undefined && req.body.date_ajout.match(dateRegex)) {
+        erreur += `Le champ date_ajout doit être au format aaaa-mm-jj.\n`
+    }
+
+    if (erreur.length > 0) {
+        return res.status(400).json({
+            erreur: erreur,
+        });
+    }
+
+    try {
+        const bibliothequeId = await bibliothequesModel.findIdParCleApi(cleApi);
+        const livreId = await livresModel.createLivre(bibliothequeId, req.body);
+
+        // Réponse 201 Succès
+        res.status(201).json({
+            message: `Le livre ${req.body.titre} a été ajouté avec succès`,
+            livre: {
+                id: livreId,
+                ...req.body // On "étale" les données reçues pour reconstruire l'objet
+            }
+        });
+
+    } catch (erreur) {
+        res.status(500).json({
+            erreur: `Echec lors de la création du livre ${req.body.titre || 'inconnu'}`
+        });
+    }
+};
+
+const modifierLivre = async (req, res) => {
+    const id = req.params.id;
+    const isbnRegex = /^(978|979)-\d{1}-\d{4}-\d{4}-\d{1}$/;
+    const dateRegex = /^\d{4}-[0-1]\d-[0-4]\d$/;
+    const champsObligatoires = ["titre", "auteur"];
+    let erreur = ``;
+
+    if(!id || parseInt(id) <= 0){
+        res.status(400);
+        res.send({
+            message: "L'id du livre est obligatoire et doit être supérieur à 0"
+        });
+        return;
+    }
+
+    champsObligatoires.forEach(champ => {
+        if (req.body[champ] === undefined || req.body[champ] === "") {
+            erreur += `Le champ ${champ} est vide.\n`
+        }
+    });
+
+    if (req.body.disponible !== true && req.body.disponible !== false) {
+        erreur += `Le champ disponible doit être "true" ou "false".\n`
+    }
+
+    if (!req.body.isbn.match(isbnRegex)) {
+        erreur += `Le champ isbn doit être au format 978|979-X-XXXX-XXXX-X ou X est un chiffre.\n`
+    }
+
+    if (req.body.date_ajout !== null && req.body.date_ajout.match(dateRegex)) {
+        erreur += `Le champ date_ajout doit être au format aaaa-mm-jj.\n`
+    }
+
+    if (erreur.length > 0) {
+        return res.status(400).json({
+            erreur: erreur,
+        });
+    }
+
+    try {
+        const affectedRows = await livresModel.updateLivre(id, req.body);
+
+        if (affectedRows === 0) {
+            return res.status(404).json({
+                erreur: `Le livre id ${id} n'existe pas dans la base de données`
+            });
+        }
+
+        // Succès 200
+        res.status(200).json({
+            message: `Le livre id ${id} a été modifié avec succès`
+        });
+
+    } catch (erreur) {
+        res.status(500).json({
+            erreur: `Echec lors de la modification du livre ${req.body.titre || 'inconnu'}`
+        });
+    }
+};
+
+const modifierStatusLivre = async (req, res) => {
+    const id = req.params.id;
+    const disponible = req.body.disponible;
+
+    if(!id || parseInt(id) <= 0){
+        res.status(400);
+        res.send({
+            message: "L'id du livre est obligatoire et doit être supérieur à 0"
+        });
+        return;
+    }
+
+    if (disponible !== true && disponible !== false) {
+        return res.status(400).json({
+            erreur: `Le champ disponible doit être "true" ou "false".`,
+        });
+    }
+
+    try {
+        const affectedRows = await livresModel.updateStatusLivre(id, disponible);
+
+        if (affectedRows === 0) {
+            return res.status(404).json({
+                erreur: `Le livre id ${id} n'existe pas dans la base de données`
+            });
+        }
+
+        // Succès 200
+        res.status(200).json({
+            message: `Le status du livre id ${id} a été modifié avec succès`
+        });
+
+    } catch (erreur) {
+        res.status(500).json({
+            erreur: `Echec lors de la modification du status du livre ${req.body.titre || 'inconnu'}`
+        });
+    }
+};
+
+const supprimerLivre = async (req, res) => {
+    const id = req.params.id;
+
+    if(!id || parseInt(id) <= 0){
+        res.status(400);
+        res.send({
+            message: "L'id du livre est obligatoire et doit être supérieur à 0"
+        });
+        return;
+    }
+
+    try {
+        const affectedRows = await livresModel.deleteLivre(id);
+
+        if (affectedRows === 0) {
+            return res.status(404).json({
+                erreur: `Le livre id ${id} n'existe pas dans la base de données`
+            });
+        }
+
+        res.status(200).json({
+            message: `Le livre id ${id} a été supprimé avec succès`
+        });
+
+    } catch (erreur) {
+        res.status(500).json({
+            erreur: `Echec lors de la suppression du livre`
+        });
+    }
+};
+
+export default {
+    listeLivre,
+    trouverLivre,
+    ajouterLivre,
+    modifierLivre,
+    modifierStatusLivre,
+    supprimerLivre
+}

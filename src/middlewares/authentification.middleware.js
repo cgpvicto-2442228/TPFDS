@@ -1,4 +1,4 @@
-import usersModel from '../models/users.model.js';
+import bibliothequesModel from '../models/bibliotheques.model.js';
 
 const authentification = async (req, res, next) => {
 
@@ -12,7 +12,7 @@ const authentification = async (req, res, next) => {
     // Vérifier si la clé API est valide
 
     try {
-        const cleValide = await usersModel.findByApiKey(cleApi);
+        const cleValide = await bibliothequesModel.findIdParCleApi(cleApi);
         if(cleValide) {
             // La clé API est valide, on continue le traitement avec la fonction next()
             next();
