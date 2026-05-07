@@ -3,10 +3,9 @@ import express from 'express';
 
 const router = express.Router();
 
-router.post('/pret/', pretsController.ajouterPret);
-/*
-router.put('/pret/:id', modifierPret);
-router.put('/pret/status/:id', modifierStatusPret);
-router.delete('/pret/:id', supprimerPret);
-*/
+router.post('/', pretsController.ajouterPret);
+router.put('/:id', pretsController.modifierPret);
+router.put('/status/:id', pretsController.modifierStatusPret);
+router.delete('/:id', pretsController.supprimerPret);
+
 export default router;

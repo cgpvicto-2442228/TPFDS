@@ -16,7 +16,9 @@ const listeLivre = async (req, res) => {
 };
 
 const trouverLivre = async (req, res) => {
-    if(!req.params.id || parseInt(req.params.id) <= 0){
+    const id = req.params.id;
+
+    if(!id || parseInt(id) <= 0){
         res.status(400);
         res.send({
             message: "L'id du livre est obligatoire et doit être supérieur à 0"
@@ -25,7 +27,7 @@ const trouverLivre = async (req, res) => {
     }
 
     try {
-        const livre = await livresModel.getLivre(req.params.id);
+        const livre = await livresModel.getLivre(id);
         res.send(livre);
     } catch (erreur) {
         console.log('Erreur : ', erreur);
@@ -49,15 +51,15 @@ const ajouterLivre = async (req, res) => {
         }
     });
 
-    if (req.body.disponible !== true && req.body.disponible !== false) {
+    if (req.body.disponible === undefined || req.body.disponible !== true && req.body.disponible !== false) {
         erreur += `Le champ disponible doit être "true" ou "false".\n`
     }
 
-    if (!req.body.isbn.match(isbnRegex)) {
-        erreur += `Le champ isbn doit être au format 978|979-X-XXXX-XXXX-X ou X est un chiffre.\n`
+    if (req.body.isbn === undefined || !req.body.isbn.match(isbnRegex)) {
+        erreur += `Le champ isbn doit être au format 978|979-X-XXXX-XXXX-X où X est un chiffre.\n`
     }
 
-    if (req.body.date_ajout !== undefined && req.body.date_ajout.match(dateRegex)) {
+    if (req.body.date_ajout !== undefined && !req.body.date_ajout.match(dateRegex)) {
         erreur += `Le champ date_ajout doit être au format aaaa-mm-jj.\n`
     }
 
@@ -94,29 +96,21 @@ const modifierLivre = async (req, res) => {
     const champsObligatoires = ["titre", "auteur"];
     let erreur = ``;
 
-    if(!id || parseInt(id) <= 0){
-        res.status(400);
-        res.send({
-            message: "L'id du livre est obligatoire et doit être supérieur à 0"
-        });
-        return;
-    }
-
     champsObligatoires.forEach(champ => {
         if (req.body[champ] === undefined || req.body[champ] === "") {
             erreur += `Le champ ${champ} est vide.\n`
         }
     });
 
-    if (req.body.disponible !== true && req.body.disponible !== false) {
+    if (req.body.disponible === undefined || req.body.disponible !== true && req.body.disponible !== false) {
         erreur += `Le champ disponible doit être "true" ou "false".\n`
     }
 
-    if (!req.body.isbn.match(isbnRegex)) {
-        erreur += `Le champ isbn doit être au format 978|979-X-XXXX-XXXX-X ou X est un chiffre.\n`
+    if (req.body.isbn === undefined || !req.body.isbn.match(isbnRegex)) {
+        erreur += `Le champ isbn doit être au format 978|979-X-XXXX-XXXX-X où X est un chiffre.\n`
     }
 
-    if (req.body.date_ajout !== null && req.body.date_ajout.match(dateRegex)) {
+    if (req.body.date_ajout !== undefined && !req.body.date_ajout.match(dateRegex)) {
         erreur += `Le champ date_ajout doit être au format aaaa-mm-jj.\n`
     }
 
@@ -159,7 +153,7 @@ const modifierStatusLivre = async (req, res) => {
         return;
     }
 
-    if (disponible !== true && disponible !== false) {
+    if (disponible === undefined || disponible !== true && disponible !== false) {
         return res.status(400).json({
             erreur: `Le champ disponible doit être "true" ou "false".`,
         });
@@ -181,7 +175,7 @@ const modifierStatusLivre = async (req, res) => {
 
     } catch (erreur) {
         res.status(500).json({
-            erreur: `Echec lors de la modification du status du livre ${req.body.titre || 'inconnu'}`
+            erreur: `Echec lors de la modification du status du livre id ${id}`
         });
     }
 };
