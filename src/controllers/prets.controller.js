@@ -93,7 +93,6 @@ const modifierPret = async (req, res) => {
             });
         }
 
-        // Succès 200
         res.status(200).json({
             message: `Le pret id ${id} a été modifié avec succès`
         });
@@ -112,7 +111,7 @@ const modifierStatusPret = async (req, res) => {
     if(!id || parseInt(id) <= 0){
         res.status(400);
         res.send({
-            message: "L'id du pret est obligatoire et doit être supérieur à 0"
+            erreur: "L'id du pret est obligatoire et doit être supérieur à 0"
         });
         return;
     }
@@ -132,7 +131,6 @@ const modifierStatusPret = async (req, res) => {
             });
         }
 
-        // Succès 200
         res.status(200).json({
             message: `Le status du pret id ${id} a été modifié avec succès`
         });

@@ -12,6 +12,18 @@ const getListeLivre = async () => {
     }
 };
 
+const getListeLivreDisponible = async () => {
+    const requete = `SELECT id, bibliotheque_id, titre, auteur, isbn, description, date_ajout, disponible FROM livres WHERE disponible = $1`;
+    const params = [true];
+    try {
+        const resultat = await pool.query(requete, params);
+        return resultat.rows || null;
+    } catch (erreur) {
+        console.log(`Erreur PostgreSQL : ${erreur.code} : ${erreur.message}`);
+        throw erreur;
+    }
+};
+
 const getLivre = async (id) => {
     const requete = `SELECT id, bibliotheque_id, titre, auteur, isbn, description, date_ajout, disponible FROM livres WHERE id = $1 LIMIT 1`;
     const params = [id];
@@ -88,6 +100,7 @@ const deleteLivre = async (id) => {
 
 export default {
     getListeLivre,
+    getListeLivreDisponible,
     getLivre,
     createLivre,
     updateLivre,

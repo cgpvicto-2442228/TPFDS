@@ -3,6 +3,6 @@ import { inscrire, recupererCle } from '../controllers/bibliotheques.controller.
 const router = express.Router();
 
 router.post('/', inscrire);
-router.get('/cle', recupererCle);
+router.post('/cle', recupererCle);
 
 export default router;

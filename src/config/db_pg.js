@@ -13,7 +13,7 @@ let params = {
 // SSL est desactivé par default, mais on peut l'activer en ajoutant PG_SSL=true 
 //   dans le .env
 // Nécessaire pour se connecter à la BD PostgreSQL sur render.com de l'extérieur
-if (process.env.PG_SSL) {
+if (process.env.PG_SSL === 'true') {
   params.ssl = {
     rejectUnauthorized: false
   }

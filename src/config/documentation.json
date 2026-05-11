@@ -10,21 +10,283 @@
             "description": "Serveur de développement"
         },
         {
-            "url": "http://api.profs.ca",
+            "url": "https://tpfds.onrender.com/",
             "description": "Serveur en ligne"
         }
     ],
     "paths": {
-        "/api": {
-            "get": {
-                "summary": "Message de bienvenue",
-                "tags": ["Accueil"],
+        "/api/bibliotheque": {
+            "post": {
+                "summary": "Ajouter une bibliothèque",
+                "tags": ["Bibliothèque"],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nom": {
+                                        "type": "string",
+                                        "example" : "LaBiblio"
+                                    },
+                                    "courriel": {
+                                        "type": "string",
+                                        "example" : "LaBiblio@bibliotheque.ca"
+                                    },
+                                    "mot_de_passe": {
+                                        "type": "string",
+                                        "example": "qwerty"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Bibliothèque ajouté avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "La bibliothèque a été créée"
+                                        },
+                                        "cle_api": {
+                                            "type": "string",
+                                            "example": "878e3641-c7b6-48e2-8a57-19ab7860c475"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400" : {
+                        "description": "Bibliothèque pas ajouté",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "erreur": {
+                                            "type": "string",
+                                            "example": "Tous les champs sont obligatoires"
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    },
+                    "500" : {
+                        "description": "Erreur lors de la création de la bibliothèque",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "erreur": {
+                                            "type": "string",
+                                            "example": "Erreur lors de la création"
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/bibliotheque/cle": {
+            "post": {
+                "summary": "Récupère la clé api de la bibliothèque ou en recréer une nouvelle",
+                "tags": ["Bibliothèque"],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "nouvelle",
+                        "description": "0 si on veut la clé api de la bibliothèque ou 1 si on veut une nouvelle clé api",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example" : "0"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "courriel": {
+                                        "type": "string",
+                                        "example" : "LaBiblio@bibliotheque.ca"
+                                    },
+                                    "mot_de_passe": {
+                                        "type": "string",
+                                        "example": "qwerty"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
-                        "description": "Retourne un message de bienvenue",
+                        "description": "La clé api à été retourné avec succès ou créée",
                         "content": {
-                            "text/html": {
-                                "example": "<h1>Mon deuxième serveur web sur express !</h1>"
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "cle_api": {
+                                            "type": "string",
+                                            "example": "878e3641-c7b6-48e2-8a57-19ab7860c475"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400" : {
+                        "description": "Clé api pas retournée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "erreur": {
+                                            "type": "string",
+                                            "example": "Tous les champs sont obligatoires"
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    },
+                    "401" : {
+                        "description": "La bibliothèque n'existe pas ou son mot de passe est mauvais",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "erreur": {
+                                            "type": "string",
+                                            "example": "Identifiants invalides"
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    },
+                    "500" : {
+                        "description": "Erreur lors de la récupération de la clé api",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "erreur": {
+                                            "type": "string",
+                                            "example": "Erreur serveur"
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/livre/liste": {
+            "get": {
+                "summary": "Récupérer une liste de livre",
+                "tags": ["Livre"],
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "afficher_tous",
+                        "description": "0 si on veut seulement les livres disponible de la bibliothèque ou 1 si on les veut tous",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example" : "0"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "La liste de livre à été retournée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": "1"
+                                            },
+                                            "bibliotheque_id": {
+                                                "type": "integer",
+                                                "example": "1"
+                                            },
+                                            "titre": {
+                                                "type": "string",
+                                                "example": "Les girafes"
+                                            },
+                                            "auteur": {
+                                                "type": "string",
+                                                "example": "Greg"
+                                            },
+                                            "isbn": {
+                                                "type": "string",
+                                                "example": "978-2-3566-3475-9"
+                                            },
+                                            "description": {
+                                                "type": "string",
+                                                "example": "Livre sur les girafes",
+                                                "nullable": true
+                                            },
+                                            "date_ajout": {
+                                                "type": "string",
+                                                "example": "2025-03-17",
+                                                "nullable": true
+                                            },
+                                            "disponible": {
+                                                "type": "bool",
+                                                "example": true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500" : {
+                        "description": "Échec lors de la récupération de la liste de livre à la base de donnée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "erreur": {
+                                            "type": "string",
+                                            "example": "Echec lors de la récupération de la liste de livre"
+                                        }
+                                    }
+                                }   
                             }
                         }
                     }
@@ -35,8 +297,41 @@
             "post": {
                 "summary": "Ajouter un livre",
                 "tags": ["Livre"],
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "titre": {
+                                        "type": "string",
+                                        "example": "Les girafes"
+                                    },
+                                    "auteur": {
+                                        "type": "string",
+                                        "example": "Greg"
+                                    },
+                                    "isbn": {
+                                        "type": "string",
+                                        "example": "978-2-3566-3475-9"
+                                    },
+                                    "disponible": {
+                                        "type": "bool",
+                                        "example": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
                 "responses": {
-                    "200": {
+                    "201": {
                         "description": "Livre ajouté avec succès",
                         "content": {
                             "application/json": {
@@ -45,7 +340,46 @@
                                     "properties": {
                                         "message": {
                                             "type": "string",
-                                            "example": "Le livre à été ajouté avec succès!"
+                                            "example": "Le livre Les girafes à été ajouté avec succès!"
+                                        },
+                                        "livre": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": "1"
+                                                },
+                                                "bibliotheque_id": {
+                                                    "type": "integer",
+                                                    "example": "1"
+                                                },
+                                                "titre": {
+                                                    "type": "string",
+                                                    "example": "Les girafes"
+                                                },
+                                                "auteur": {
+                                                    "type": "string",
+                                                    "example": "Greg"
+                                                },
+                                                "isbn": {
+                                                    "type": "string",
+                                                    "example": "978-2-3566-3475-9"
+                                                },
+                                                "description": {
+                                                    "type": "string",
+                                                    "example": "Livre sur les girafes",
+                                                    "nullable": true
+                                                },
+                                                "date_ajout": {
+                                                    "type": "string",
+                                                    "example": "2025-03-17",
+                                                    "nullable": true
+                                                },
+                                                "disponible": {
+                                                    "type": "bool",
+                                                    "example": true
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -53,15 +387,15 @@
                         }
                     },
                     "400" : {
-                        "description": "Livre pas ajouté",
+                        "description": "Champ manquant ou au mauvais format",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "message": {
+                                        "erreur": {
                                             "type": "string",
-                                            "example": "Erreur, le livre n'est pas au bon format."
+                                            "example": "Le champ titre est vide."
                                         }
                                     }
                                 }   
@@ -69,15 +403,15 @@
                         }
                     },
                     "500" : {
-                        "description": "Pokemon non rencontré",
+                        "description": "Échec lors de l'ajout du livre à la base de donnée",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "message": {
+                                        "erreur": {
                                             "type": "string",
-                                            "example": "Echec lors de l'ajout du livre."
+                                            "example": "Echec lors de la création du livre Les girafes"
                                         }
                                     }
                                 }   
@@ -91,16 +425,21 @@
             "get": {
                 "summary": "Récupérer un livre",
                 "tags": ["Livre"],
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "parameters": [
                     {
-                        "in": "query",
+                        "in": "path",
                         "name": "id",
                         "description": "Id du livre à trouver",
                         "required": true,
                         "schema": {
                             "type": "integer",
                             "format": "int32",
-                            "example" : "1"
+                            "example" : 1
                         }
                     }
                 ],
@@ -112,57 +451,39 @@
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "livre": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "nom": {
-                                                        "titre": "string",
-                                                        "example": "Bible"
-                                                    },
-                                                    "auteur": {
-                                                        "type": "string",
-                                                        "example": "Jésus"
-                                                    },
-                                                    "ISBN": {
-                                                        "type": "string",
-                                                        "example": "978-2-1234-5680-3"
-                                                    },
-                                                    "disponible": {
-                                                        "type": "bool",
-                                                        "example": false
-                                                    },
-                                                    "description": {
-                                                        "type": "string",
-                                                        "example": "C'est le fucking livre de Dieu!"
-                                                    },
-                                                    "prêts": {
-                                                        "type": "array",
-                                                        "items": {
-                                                            "type": "object",
-                                                            "properties": {
-                                                                "emprunteur": {
-                                                                    "type": "string",
-                                                                    "example": "Félix Gagné"
-                                                                },
-                                                                "date_ajout": {
-                                                                    "type": "string",
-                                                                    "example": "2026-04-16"
-                                                                },
-                                                                "date_retour": {
-                                                                    "type": "string",
-                                                                    "example": "3000-01-01"
-                                                                },
-                                                                "en_cours": {
-                                                                    "type": "bool",
-                                                                    "example": true
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
+                                        "id": {
+                                            "type": "integer",
+                                            "example": "1"
+                                        },
+                                        "bibliotheque_id": {
+                                            "type": "integer",
+                                            "example": "1"
+                                        },
+                                        "titre": {
+                                            "type": "string",
+                                            "example": "Les girafes"
+                                        },
+                                        "auteur": {
+                                            "type": "string",
+                                            "example": "Greg"
+                                        },
+                                        "isbn": {
+                                            "type": "string",
+                                            "example": "978-2-3566-3475-9"
+                                        },
+                                        "description": {
+                                            "type": "string",
+                                            "example": "Livre sur les girafes",
+                                            "nullable": true
+                                        },
+                                        "date_ajout": {
+                                            "type": "string",
+                                            "example": "2025-03-17",
+                                            "nullable": true
+                                        },
+                                        "disponible": {
+                                            "type": "bool",
+                                            "example": true
                                         }
                                     }
                                 }
@@ -170,15 +491,15 @@
                         }
                     },
                     "400" : {
-                        "description": "Livre non retrouvé",
+                        "description": "L'id du livre n'est pas bon",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "message": {
+                                        "erreur": {
                                             "type": "string",
-                                            "example": "Erreur, le livre n'existe pas"
+                                            "example": "L'id du livre est obligatoire et doit être supérieur à 0"
                                         }
                                     }
                                 }   
@@ -186,15 +507,15 @@
                         }
                     },
                     "500" : {
-                        "description": "Livre non retrouvé",
+                        "description": "Échec lors de la récupération du livre à la base de donnée",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "message": {
+                                        "erreur": {
                                             "type": "string",
-                                            "example": "Echec lors de la récupération du livre"
+                                            "example": "Erreur lors de la récupération du livre avec l'id 1"
                                         }
                                     }
                                 }   
@@ -204,78 +525,383 @@
                 }
             },
             "put": {
-                "summary": "Récupérer un livre",
+                "summary": "Modifier un livre",
                 "tags": ["Livre"],
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "parameters": [
                     {
-                        "in": "query",
+                        "in": "path",
                         "name": "id",
-                        "description": "Id du livre à trouver",
+                        "description": "Id du livre à modifier",
                         "required": true,
                         "schema": {
                             "type": "integer",
                             "format": "int32",
-                            "example" : "1"
+                            "example" : 1
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "titre": {
+                                        "type": "string",
+                                        "example": "Les girafes"
+                                    },
+                                    "auteur": {
+                                        "type": "string",
+                                        "example": "Greg"
+                                    },
+                                    "isbn": {
+                                        "type": "string",
+                                        "example": "978-2-3566-3475-9"
+                                    },
+                                    "disponible": {
+                                        "type": "bool",
+                                        "example": true
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Livre sur les girafes"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
-                        "description": "Livre retrouvé avec succès",
+                        "description": "Livre modifié avec succès",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "livre": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "nom": {
-                                                        "titre": "string",
-                                                        "example": "Bible"
-                                                    },
-                                                    "auteur": {
-                                                        "type": "string",
-                                                        "example": "Jésus"
-                                                    },
-                                                    "ISBN": {
-                                                        "type": "string",
-                                                        "example": "978-2-1234-5680-3"
-                                                    },
-                                                    "disponible": {
-                                                        "type": "bool",
-                                                        "example": false
-                                                    },
-                                                    "description": {
-                                                        "type": "string",
-                                                        "example": "C'est le fucking livre de Dieu!"
-                                                    },
-                                                    "prêts": {
-                                                        "type": "array",
-                                                        "items": {
-                                                            "type": "object",
-                                                            "properties": {
-                                                                "emprunteur": {
-                                                                    "type": "string",
-                                                                    "example": "Félix Gagné"
-                                                                },
-                                                                "date_ajout": {
-                                                                    "type": "string",
-                                                                    "example": "2026-04-16"
-                                                                },
-                                                                "date_retour": {
-                                                                    "type": "string",
-                                                                    "example": "3000-01-01"
-                                                                },
-                                                                "en_cours": {
-                                                                    "type": "bool",
-                                                                    "example": true
-                                                                }
-                                                            }
-                                                        }
-                                                    }
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Le livre id 1 a été modifié avec succès"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400" : {
+                        "description": "Champ manquant ou au mauvais format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "erreur": {
+                                            "type": "string",
+                                            "example": "Le champ titre est vide."
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    },
+                    "404" : {
+                        "description": "Le livre de cet id est inexistant",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "erreur": {
+                                            "type": "string",
+                                            "example": "Le livre id 1 n'existe pas dans la base de données"
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    },
+                    "500" : {
+                        "description": "Échec lors de la modification du livre à la base de donnée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "erreur": {
+                                            "type": "string",
+                                            "example": "Echec lors de la modification du livre Les girafes"
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Supprimer un livre",
+                "tags": ["Livre"],
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "Id du livre à supprimer",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "example" : 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Livre supprimé avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Le livre id 1 a été supprimé avec succès"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400" : {
+                        "description": "Champ manquant ou au mauvais format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "erreur": {
+                                            "type": "string",
+                                            "example": "L'id du livre est obligatoire et doit être supérieur à 0"
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    },
+                    "404" : {
+                        "description": "Le livre de cet id est inexistant",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "erreur": {
+                                            "type": "string",
+                                            "example": "Le livre id 1 n'existe pas dans la base de données"
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    },
+                    "500" : {
+                        "description": "Échec lors de la suppression du livre à la base de donnée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "erreur": {
+                                            "type": "string",
+                                            "example": "Echec lors de la suppression du livre"
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/livre/status/{id}": {
+            "put": {
+                "summary": "Modifier le status du livre",
+                "tags": ["Livre"],
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "Id du livre à modifier le status",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "example" : 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "disponible": {
+                                        "type": "bool",
+                                        "example": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Status du livre modifié avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Le status du livre id 1 à été modifié avec succès!"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400" : {
+                        "description": "Status du livre pas modifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "erreur": {
+                                            "type": "string",
+                                            "example": "Le champ titre est vide."
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    },
+                    "500" : {
+                        "description": "Échec lors de la modification du status du livre à la base de donnée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "erreur": {
+                                            "type": "string",
+                                            "example": "Echec lors de la modification du status du livre id 1"
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pret": {
+            "post": {
+                "summary": "Ajouter un pret",
+                "tags": ["Pret"],
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "livre_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "emprunteur": {
+                                        "type": "string",
+                                        "example": "Gregoire"
+                                    },
+                                    "date_debut": {
+                                        "type": "string",
+                                        "example": "2026-05-05"
+                                    },
+                                    "date_retour": {
+                                        "type": "string",
+                                        "example": "2026-06-20"
+                                    },
+                                    "en_cours": {
+                                        "type": "bool",
+                                        "example": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Pret ajouté avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Le pret pour Gregoire à été ajouté avec succès!"
+                                        },
+                                        "pret": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": "1"
+                                                },
+                                                "livre_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "emprunteur": {
+                                                    "type": "string",
+                                                    "example": "Gregoire"
+                                                },
+                                                "date_debut": {
+                                                    "type": "string",
+                                                    "example": "2026-05-05"
+                                                },
+                                                "date_retour": {
+                                                    "type": "string",
+                                                    "example": "2026-06-20"
+                                                },
+                                                "en_cours": {
+                                                    "type": "bool",
+                                                    "example": true
                                                 }
                                             }
                                         }
@@ -285,15 +911,15 @@
                         }
                     },
                     "400" : {
-                        "description": "Livre non retrouvé",
+                        "description": "Champ manquant ou au mauvais format",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "message": {
+                                        "erreur": {
                                             "type": "string",
-                                            "example": "Erreur, le livre n'existe pas"
+                                            "example": "Le champ emprunteur est vide."
                                         }
                                     }
                                 }   
@@ -301,15 +927,15 @@
                         }
                     },
                     "500" : {
-                        "description": "Livre non retrouvé",
+                        "description": "Échec lors de l'ajout du pret à la base de donnée",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "message": {
+                                        "erreur": {
                                             "type": "string",
-                                            "example": "Echec lors de la récupération du livre"
+                                            "example": "Echec lors de la création du pret"
                                         }
                                     }
                                 }   
@@ -317,6 +943,328 @@
                         }
                     }
                 }
+            }
+        },
+        "/api/pret/{id}": {
+            "put": {
+                "summary": "Modifier un pret",
+                "tags": ["Pret"],
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "Id du pret à modifier",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "example" : 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "emprunteur": {
+                                        "type": "string",
+                                        "example": "Gregoire"
+                                    },
+                                    "date_debut": {
+                                        "type": "string",
+                                        "example": "2026-05-05"
+                                    },
+                                    "date_retour": {
+                                        "type": "string",
+                                        "example": "2026-06-20"
+                                    },
+                                    "en_cours": {
+                                        "type": "bool",
+                                        "example": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Pret modifié avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Le pret id 1 a été modifié avec succès"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400" : {
+                        "description": "L'id du pret n'est pas bon",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "erreur": {
+                                            "type": "string",
+                                            "example": "L'id du pret est obligatoire et doit être supérieur à 0"
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    },
+                    "404" : {
+                        "description": "Le pret de cet id est inexistant",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "erreur": {
+                                            "type": "string",
+                                            "example": "Le pret id 1 n'existe pas dans la base de données"
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    },
+                    "500" : {
+                        "description": "Échec lors de la modification du pret à la base de donnée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "erreur": {
+                                            "type": "string",
+                                            "example": "Echec lors de la modification du pret de Gregoire"
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Supprimer un pret",
+                "tags": ["Pret"],
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "Id du pret à supprimer",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "example" : 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Pret supprimé avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Le pret id 1 a été supprimé avec succès"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400" : {
+                        "description": "Champ manquant ou au mauvais format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "erreur": {
+                                            "type": "string",
+                                            "example": "L'id du pret est obligatoire et doit être supérieur à 0"
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    },
+                    "404" : {
+                        "description": "Le pret de cet id est inexistant",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "erreur": {
+                                            "type": "string",
+                                            "example": "Le pret id 1 n'existe pas dans la base de données"
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    },
+                    "500" : {
+                        "description": "Échec lors de la suppression du pret à la base de donnée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "erreur": {
+                                            "type": "string",
+                                            "example": "Echec lors de la suppression du pret"
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pret/status/{id}": {
+            "put": {
+                "summary": "Modifier le status du pret",
+                "tags": ["Pret"],
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "Id du pret à modifier le status",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "example" : 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "en_cours": {
+                                        "type": "bool",
+                                        "example": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Status du pret modifié avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Le status du pret id 1 à été modifié avec succès!"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400" : {
+                        "description": "Champ manquant ou au mauvais format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "erreur": {
+                                            "type": "string",
+                                            "example": "L'id du pret est obligatoire et doit être supérieur à 0"
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    },
+                    "404" : {
+                        "description": "Le pret de cet id est inexistant",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "erreur": {
+                                            "type": "string",
+                                            "example": "Le pret id 1 n'existe pas dans la base de données"
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    },
+                    "500" : {
+                        "description": "Échec lors de la modification du status du pret à la base de donnée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "erreur": {
+                                            "type": "string",
+                                            "example": "Echec lors de la modification du status du pret id 1"
+                                        }
+                                    }
+                                }   
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "ApiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "Authorization",
+                "description": "Au format : cle_api XXXXXX"
             }
         }
     }

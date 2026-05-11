@@ -2,15 +2,28 @@ import livresModel from "../models/livres.model.js";
 import bibliothequesModel from '../models/bibliotheques.model.js';
 
 const listeLivre = async (req, res) => {
-    try {
-        const livre = await livresModel.getListeLivre();
-        res.send(livre);
+    const afficherTous = req.query.afficher_tous;
 
+    if (afficherTous !== undefined && afficherTous !== "0" && afficherTous !== "1") {
+        res.status(400).send({
+            erreur: "Le champ afficher_tous doit être soit 0 ou 1"
+        });
+        return;
+    }
+
+    try {
+        let livre
+        if (afficherTous === "1") {
+            livre = await livresModel.getListeLivre();
+        } else {
+            livre = await livresModel.getListeLivreDisponible();
+        }
+        res.send(livre);
     } catch (erreur) {
         console.log('Erreur : ', erreur);
         res.status(500)
         res.send({
-            message: "Echec lors de la récupération de la liste des livres"
+            erreur: "Echec lors de la récupération de la liste des livres"
         });
     };
 };
@@ -21,7 +34,7 @@ const trouverLivre = async (req, res) => {
     if(!id || parseInt(id) <= 0){
         res.status(400);
         res.send({
-            message: "L'id du livre est obligatoire et doit être supérieur à 0"
+            erreur: "L'id du livre est obligatoire et doit être supérieur à 0"
         });
         return;
     }
@@ -33,7 +46,7 @@ const trouverLivre = async (req, res) => {
         console.log('Erreur : ', erreur);
         res.status(500)
         res.send({
-            message: "Erreur lors de la récupération du livre avec l'id " + req.params.id
+            erreur: "Erreur lors de la récupération du livre avec l'id " + req.params.id
         });
     };
 };
@@ -78,7 +91,7 @@ const ajouterLivre = async (req, res) => {
             message: `Le livre ${req.body.titre} a été ajouté avec succès`,
             livre: {
                 id: livreId,
-                ...req.body // On "étale" les données reçues pour reconstruire l'objet
+                ...req.body // étale les données reçues pour reconstruire le livre
             }
         });
 
@@ -129,7 +142,6 @@ const modifierLivre = async (req, res) => {
             });
         }
 
-        // Succès 200
         res.status(200).json({
             message: `Le livre id ${id} a été modifié avec succès`
         });
@@ -148,7 +160,7 @@ const modifierStatusLivre = async (req, res) => {
     if(!id || parseInt(id) <= 0){
         res.status(400);
         res.send({
-            message: "L'id du livre est obligatoire et doit être supérieur à 0"
+            erreur: "L'id du livre est obligatoire et doit être supérieur à 0"
         });
         return;
     }
@@ -186,7 +198,7 @@ const supprimerLivre = async (req, res) => {
     if(!id || parseInt(id) <= 0){
         res.status(400);
         res.send({
-            message: "L'id du livre est obligatoire et doit être supérieur à 0"
+            erreur: "L'id du livre est obligatoire et doit être supérieur à 0"
         });
         return;
     }

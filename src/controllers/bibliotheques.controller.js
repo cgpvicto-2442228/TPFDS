@@ -18,7 +18,7 @@ const inscrire = async (req, res) => {
         await bibliothequesModel.createBibliotheque(nom, courriel, hash, cleApi);
 
         res.status(201).json({ 
-            message: "L'utilisateur a été créé", 
+            message: "La bibliothèque a été créée", 
             cle_api: cleApi 
         });
     } catch (erreur) {
@@ -31,7 +31,11 @@ const inscrire = async (req, res) => {
 
 const recupererCle = async (req, res) => {
     const { courriel, mot_de_passe } = req.body;
-    const genererNouvelle = req.query.nouvelle === "1";
+    const genererNouvelle = req.query.nouvelle;
+
+    if (!courriel || !mot_de_passe) {
+        return res.status(400).json({ erreur: "Tous les champs sont obligatoires" });
+    }
 
     try {
         const user = await bibliothequesModel.findParCourriel(courriel);
@@ -41,7 +45,7 @@ const recupererCle = async (req, res) => {
 
         let cleARetourner = user.cle_api;
 
-        if (genererNouvelle) {
+        if (genererNouvelle === "1") {
             cleARetourner = crypto.randomUUID();
             await bibliothequesModel.updateCleApi(user.id, cleARetourner);
         }
