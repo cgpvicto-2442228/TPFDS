@@ -6,6 +6,7 @@ import pretRouter from './src/routes/prets.route.js';
 import bibliothequeRouter from './src/routes/bibliotheques.route.js';
 import swaggerUi from 'swagger-ui-express';
 import fs from 'fs';
+import cors from 'cors';
 
 const swaggerDocument = JSON.parse(fs.readFileSync('./src/config/documentation.json', 'utf8'));
 
@@ -17,6 +18,7 @@ const swaggerOptions = {
 const app = express();
 dotenv.config();
 
+app.use(cors());
 app.use(express.json());
 
 app.use('/api/livre', authentification, livreRouter);
