@@ -451,39 +451,73 @@
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "id": {
-                                            "type": "integer",
-                                            "example": "1"
+                                        "livre": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": "1"
+                                                },
+                                                "bibliotheque_id": {
+                                                    "type": "integer",
+                                                    "example": "1"
+                                                },
+                                                "titre": {
+                                                    "type": "string",
+                                                    "example": "Les girafes"
+                                                },
+                                                "auteur": {
+                                                    "type": "string",
+                                                    "example": "Greg"
+                                                },
+                                                "isbn": {
+                                                    "type": "string",
+                                                    "example": "978-2-3566-3475-9"
+                                                },
+                                                "description": {
+                                                    "type": "string",
+                                                    "example": "Livre sur les girafes",
+                                                    "nullable": true
+                                                },
+                                                "date_ajout": {
+                                                    "type": "string",
+                                                    "example": "2025-03-17",
+                                                    "nullable": true
+                                                },
+                                                "disponible": {
+                                                    "type": "bool",
+                                                    "example": false
+                                                }
+                                            }
                                         },
-                                        "bibliotheque_id": {
-                                            "type": "integer",
-                                            "example": "1"
-                                        },
-                                        "titre": {
-                                            "type": "string",
-                                            "example": "Les girafes"
-                                        },
-                                        "auteur": {
-                                            "type": "string",
-                                            "example": "Greg"
-                                        },
-                                        "isbn": {
-                                            "type": "string",
-                                            "example": "978-2-3566-3475-9"
-                                        },
-                                        "description": {
-                                            "type": "string",
-                                            "example": "Livre sur les girafes",
-                                            "nullable": true
-                                        },
-                                        "date_ajout": {
-                                            "type": "string",
-                                            "example": "2025-03-17",
-                                            "nullable": true
-                                        },
-                                        "disponible": {
-                                            "type": "bool",
-                                            "example": true
+                                        "prets": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": "1"
+                                                },
+                                                "livre_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "emprunteur": {
+                                                    "type": "string",
+                                                    "example": "Gregoire"
+                                                },
+                                                "date_debut": {
+                                                    "type": "string",
+                                                    "example": "2026-05-05"
+                                                },
+                                                "date_retour": {
+                                                    "type": "string",
+                                                    "example": "2026-06-20"
+                                                },
+                                                "en_cours": {
+                                                    "type": "bool",
+                                                    "example": true
+                                                }
+                                            }
                                         }
                                     }
                                 }

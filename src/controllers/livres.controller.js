@@ -41,7 +41,16 @@ const trouverLivre = async (req, res) => {
 
     try {
         const livre = await livresModel.getLivre(id);
-        res.send(livre);
+        let prets = await livresModel.getPretLivre(id);
+        if (prets === undefined || prets.length === 0) {
+            prets = "Aucun prêts associé à ce livre pour le moment.";
+        }
+        res.send({
+            livre: livre,
+            prets: prets
+        });
+
+        
     } catch (erreur) {
         console.log('Erreur : ', erreur);
         res.status(500)

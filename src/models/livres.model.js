@@ -37,6 +37,19 @@ const getLivre = async (id) => {
     }
 };
 
+const getPretLivre = async (id) => {
+    const requete = `SELECT id, livre_id, emprunteur, date_debut, date_retour, en_cours FROM prets WHERE livre_id = $1`;
+    const params = [id];
+
+    try {
+        const resultat = await pool.query(requete, params);
+        return resultat.rows || null;
+    } catch (erreur) {
+        console.log(`Erreur PostgreSQL : ${erreur.code} : ${erreur.message}`);
+        throw erreur;
+    }
+};
+
 const createLivre = async (bibliothequeId, requeteAjouterLivre) => {
     const {titre, auteur, isbn, description, date_ajout, disponible} = requeteAjouterLivre;
     
@@ -102,6 +115,7 @@ export default {
     getListeLivre,
     getListeLivreDisponible,
     getLivre,
+    getPretLivre,
     createLivre,
     updateLivre,
     updateStatusLivre,
